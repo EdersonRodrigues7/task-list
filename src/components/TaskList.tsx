@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import '../styles/tasklist.scss'
 
 import { FiTrash, FiCheckSquare } from 'react-icons/fi'
+import { parse } from '@babel/core';
 
 interface Task {
   id: number;
@@ -14,16 +15,28 @@ export function TaskList() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState('');
 
-  function handleCreateNewTask() {
-    // Crie uma nova task com um id random, não permita criar caso o título seja vazio.
+  function handleCreateNewTask(task: Task) {
+    if(!newTaskTitle)return;
+    setTasks(oldState => [...oldState, task]);
+    setNewTaskTitle(``);
   }
 
   function handleToggleTaskCompletion(id: number) {
-    // Altere entre `true` ou `false` o campo `isComplete` de uma task com dado ID
+    console.log(tasks);
+    for(let i=0; i <tasks.length; i++){
+      if(tasks[i].id == id){
+        if(tasks[i].isComplete == true){
+        tasks[i].isComplete = false}
+        else {tasks[i].isComplete = true}
+      } else {console.log('Não é a task')}
+    }
+    setTasks(oldState => [...oldState]);
   }
 
   function handleRemoveTask(id: number) {
-    // Remova uma task da listagem pelo ID
+    const cleanTasks = tasks.filter(task => task.id !== id)
+
+    setTasks(cleanTasks);
   }
 
   return (
@@ -34,11 +47,19 @@ export function TaskList() {
         <div className="input-group">
           <input 
             type="text" 
-            placeholder="Adicionar novo todo" 
+            placeholder="Adicionar novo to-do" 
             onChange={(e) => setNewTaskTitle(e.target.value)}
             value={newTaskTitle}
+            id="pesquisa"
           />
-          <button type="submit" data-testid="add-task-button" onClick={handleCreateNewTask}>
+          <button 
+          type="submit" 
+          data-testid="add-task-button" 
+          onClick={() => handleCreateNewTask({
+            id: Math.floor(Math.random() * 100001),
+            title: newTaskTitle,
+            isComplete: false
+            })}>
             <FiCheckSquare size={16} color="#fff"/>
           </button>
         </div>
